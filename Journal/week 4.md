@@ -1,4 +1,4 @@
-### Week 4 Updates
+## Week 4 Updates
 
 1. LP formulation - Approach 1
      Points of Difficulty
