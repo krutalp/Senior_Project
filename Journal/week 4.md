@@ -40,10 +40,17 @@ Constraints
 
    $\sum_{p} B_{i,j,p}^{t} \leq K_{j} $  $\forall j$
 
-4. 
+4. $B_{i,j,p}^{t}$ = {0,1}
+
+5. Flight Availability
+
+   $\sum_{i,j} B_{i,j,p}^{t} \leq 1 \forall t,p $
+
    
 
 ### Network Passenger Flow (Simulation-based approach)
+
+
 
    
 
