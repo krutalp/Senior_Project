@@ -23,7 +23,7 @@ There are two cases:
 Objective Funtion: minimize total travel time for passengers
 Fix t and let k be the intermediate airport / connecting stops
 
-$T_{total} = \sum_{i,j,p} B_{i,j,p} (D_{i,j}) (\tau_{i,j}) + \sum_{i,j,p} \sum_{k} D_{i,j} (B_{i,k,p} \tau_{i,k} + \delta_{k} + B_{k,j,p} \tau_{k,j})$
+$T_{total} = \sum_{i,j,p} B_{i,j,p} (D_{i,j}) (\tau_{i,j})$ + $\sum_{i,j,p} \sum_{k} D_{i,j} (B_{i,k,p} \tau_{i,k} + \delta_{k} + B_{k,j,p} \tau_{k,j})$
 
 Considerations: k > 1?  - Can we define another variable: the intermediate airport stops for connecting passengers
 
@@ -34,7 +34,7 @@ Constraints
 
 2. Budget Constraints
 
-   $\sum_{t,i,j,p} C_{i,j}^{t} B_{i,j,p}^{t} \leq BUDGET$
+   $\sum_{t,i,j,p} C_{i,j}^{t} B_{i,j,p}^{t}$ $\leq$ BUDGET
 
 3. Airport Capacity
 
