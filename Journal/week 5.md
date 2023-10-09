@@ -33,7 +33,7 @@ We iterate through each plane to get a running sum of travel time for all planes
 
 2. Consider flights with one stop at airport k
    - Additional factors to consider: time spent at transfer airport, each flight leg duration, whether or not a new aircraft p exists at the intermediate airport k
-   - $T_{i,j}^{t,1} = \sum_{k} T_{i,k}^{t,1} + (t^{'}) + T_{k,j}^{t^{'} , 1} $  where $t^{'} = t + \tau_{i,k} + \delta_{k} $
+   - $T_{i,j}^{t,1} = \sum_{k} T_{i,k}^{t,1} + (t^{'}) + T_{k,j}^{t^{'} , 1} $  where $t^{'} = t + \tau_{i,k} + \delta_{k}$
    - Note $T_{k,j}$ 
   
 Questions
