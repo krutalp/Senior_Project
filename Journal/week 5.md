@@ -25,7 +25,7 @@ Objective Funtion: minimize total travel time for passengers
 Split into two cases
 We iterate through each plane to get a running sum of travel time for all planes active at given time t. 
 
-1. Direct flight exists between airport i and j (0 stops): $T_{i,j}^{t,0} = \sum_{p} D_{i,j}^{t} \tau_{i,j} (B_{i,j,p}^{t} + (1 - B_{i,j,p)^{t})M  )$
+1. Direct flight exists between airport i and j (0 stops): $T_{i,j}^{t,0} = \sum_{p} D_{i,j}^{t} \tau_{i,j} (B_{i,j,p}^{t} + (1 - B_{i,j,p}^{t})M  )$
    This expression consider several things:
      - all planes p are active at given time t --> which is why we iterate through each plane
      - If a plane p is active on route i,j and the corresponding B variable is 1, then all other instances of B with that specified p must be 0 (since a plane can be operational on only one route at a time)
@@ -33,7 +33,8 @@ We iterate through each plane to get a running sum of travel time for all planes
 
 2. Consider flights with one stop at airport k
    - Additional factors to consider: time spent at transfer airport, each flight leg duration, whether or not a new aircraft p exists at the intermediate airport k
-   - $T_{i,j}^{t,1} = \sum_{k} T_{i,k}^{t,1} + (t^{'}) + T_{k,j}^{t^{'} , 1} $  where $t^{'} = t + \tau_{i,k} + \delta_{k}$
+   - $T_{i,j}^{t,1} = \sum_{k} T_{i,k}^{t,1} + (t^{'}) + T_{k,j}^{t^{'} , 1} $
+     where $t^{'} = t + \tau_{i,k} + \delta_{k}$
    - Note $T_{k,j}$ 
   
 Questions
