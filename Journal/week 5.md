@@ -36,7 +36,8 @@ We iterate through each plane to get a running sum of travel time for all planes
    - $T_{i,j}^{t,1} = \sum_{k} T_{i,k}^{t,1} + (t^{'}) + T_{k,j}^{t^{'} , 1} $
      where $t^{'} = t + \tau_{i,k} + \delta_{k}$
    - Note $T_{k,j}$ 
-  
+
+Objective function: For all routes i,j compute: min {T_{i,j}^{t,0}, T_{i,j}^{t,1}}
 Questions
 1. Instead of iterating through each plane p, would it make more sense to iterate through each route and then have the LP select whether that route should be operated by a direct flight or a 1-stop connecting flight?
 
