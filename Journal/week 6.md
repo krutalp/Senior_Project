@@ -1,4 +1,4 @@
-# Week 4 Updates
+# Week 6 Updates
 
 ### Continued LP formulation - Approach 1 (Analytical Solutions)
 
