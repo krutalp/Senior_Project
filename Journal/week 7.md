@@ -25,44 +25,62 @@ Objective Funtion: minimize total travel time for passengers
 Split into two cases
 We iterate through each plane to get a running sum of travel time for all planes active at given time t. 
 
-1. Direct flight exists between airport i and j (0 stops): $T_{i,j}^{t,0} = \sum_{p} D_{i,j}^{t} \tau_{i,j} (B_{i,j,p}^{t} + (1 - B_{i,j,p}^{t})M  )$
+1. Direct flight exists between airport i and j (0 stops): $T_{i,j}^{t,0} =  D_{i,j}^{t} \tau_{i,j} (B_{i,j,p}^{t} + (1 - B_{i,j,p}^{t})M  )$
    This expression consider several things:
      - all planes p are active at given time t --> which is why we iterate through each plane
      - If a plane p is active on route i,j and the corresponding B variable is 1, then all other instances of B with that specified p must be 0 (since a plane can be operational on only one route at a time)
-     - A penalty term M is added to account for nonexist routes operated by some aircraft p. This helps avoid the trivial solution of having 0 operational flights at time t
+     - A penalty term M is added to account for nonexistent routes operated by some aircraft p. This helps avoid the trivial solution of having 0 operational flights at time t
 
 2. Consider flights with one stop at airport k
    - Additional factors to consider: time spent at transfer airport, each flight leg duration, whether or not a new aircraft p exists at the intermediate airport k
-   - $T_{i,j}^{t,1} = \sum_{k} T_{i,k}^{t,1} + (t^{'}) + T_{k,j}^{t^{'} , 1} $
+   - $T_{i,j}^{t,1} = \sum_{k} T_{i,k}^{t,1} + (\tau_{i,k} + \delta_{k}) + T_{k,j}^{t^{'} , 1}$
      where $t^{'} = t + \tau_{i,k} + \delta_{k}$
-   - Note $T_{k,j}$ 
+   - Note $\delta_{k}$ ~ the additional time / error 
 
-Objective function: For all routes i,j compute: min {T_{i,j}^{t,0}, T_{i,j}^{t,1}}
-Questions
-1. Instead of iterating through each plane p, would it make more sense to iterate through each route and then have the LP select whether that route should be operated by a direct flight or a 1-stop connecting flight?
+**Objective function**: 
 
+$T_{i,j}^{t,0} =  D_{i,j}^{t} \tau_{i,j} (B_{i,j,p}^{t} + (1 - B_{i,j,p}^{t})M  )$
 
+$T_{i,j}^{t,1} = \sum_{k} T_{i,k}^{t,1} + (\tau_{i,k} + \delta_{k}) + T_{k,j}^{t^{'} , 1}$
+     where $t^{'} = t + \tau_{i,k} + \delta_{k}$
 
-Constraints
-1. All planes in the fleet should be used at time t
+For all routes i,j and fixed t (define this time as the earliest departure time) compute: $min ({T_{i,j}^{t,0}, T_{i,j}^{t,1}})$
 
-   $\sum_{p} B_{i,j,p}^{t} = 1$   $\forall i,j,t$
+**Simplications/Assumptions**
+1. Assume continuous time instead of discrete time intervals, allowing for analysis of a single network throughout the full time period.
+2. Fix time t when computing the min passenger travel time for each
+3. Assume availability of routes, accepting unbounded number of aircrafts operating that route
+
+**Constraints**
+1. All planes in the fleet should be used at time t. This means that exactly one $B_{i,j,p}^{t} \leq 1$ since plane p can only be active on a single route (i,j) at fixed time t.
+
+    This also captures the condition: If a plane p is active on route (i,j) then $B_{i,j,p} = 1$ at time t but $B_{i,j,p} = 0$ for all other i,j routes
+
+    $\sum_{i} \sum_{j}   B_{i,j,p}^{t} \leq 1$   $\forall \, \, t, p$
    
-2. If a plane p is active on route (i,j) then $B_{i,j,p} = 1$ at time t but $B_{i,j,p} = 0$ for all other i,j routes
 
-3. Budget Constraints
+2. Budget Constraints
+   
+   This condition ensures us that the selected $B_{i,j,p}^{t}$ decision variables statisfy cost associated with each route over time. 
+
+   Once again, we are now treating t as a continuous time r.v.
 
    $\sum_{t,i,j,p} C_{i,j}^{t} B_{i,j,p}^{t}$ $\leq$ BUDGET
 
-5. Airport Capacity
+3. Airport Capacity
 
-   $\sum_{p} B_{i,j,p}^{t} \leq K_{j} $  $\forall j$
+   Ensure that for each destination airport j (from every route at time t), we do not exceed airport j's plane p capacity (which is fixed over time t)
 
-6. $B_{i,j,p}^{t}$ = {0,1}
+   $\sum_{i} \sum_{p} B_{i,j,p}^{t} \leq K_{j}$  $\forall j, t$
 
-7. Flight Availability
+4. $B_{i,j,p}^{t}$ = {0,1}
 
-   $\sum_{i,j} B_{i,j,p}^{t} \leq 1 \forall t,p $
+
+5. A plane p can only be used for a route (i,j) at time t, if at the previous time, that plane operated a route (i,j) 
+    i.e. the destination must match the origin of the next flight 
+
+In other words, $B_{i,l,p}^{t} = 1$ if and only if $B_{l,j,p}^{t^{'}} = 1$ $\forall$ p, t, $t^{'}, i,j, l$, where $t^{'} > t + \tau_{i,j}$
+
 
 
 Gameplan moving forward
