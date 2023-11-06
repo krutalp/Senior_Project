@@ -39,10 +39,30 @@ We iterate through each plane to get a running sum of travel time for all planes
 
 **Objective function**: 
 
-$T_{i,j}^{t,0} =  D_{i,j}^{t} \tau_{i,j} (B_{i,j,p}^{t} + (1 - B_{i,j,p}^{t})M  )$
+$T_{i,j}^{t,0} (x) =   \tau_{i,j} (B_{i,j,p}^{t} + (1 - B_{i,j,p}^{t})M  )$
 
-$T_{i,j}^{t,1} = \sum_{k} T_{i,k}^{t,1} + (\tau_{i,k} + \delta_{k}) + T_{k,j}^{t^{'} , 1}$
-     where $t^{'} = t + \tau_{i,k} + \delta_{k}$
+consider what happens with plane p 
+consider dropping plane p 
+
+$T_{i,j,p}^{t,1}(x) = min_{k, t^{'}} \, \,  (t^{'} + \tau_{k,j} - t)$ for $k \neq i,j$
+
+
+
+- Condition: $t^{'} - t \geq \tau_{i,k} + \delta_{k} \forall \, \, t,i,k$
+Treat $t^{'}$ as a function of x
+- Switch all B decision variables with x decision variables 
+
+
+
+
+
+
+
+
+
+
+consider largest time difference - interval 
+
 
 For all routes i,j and fixed t (define this time as the earliest departure time) compute: $min ({T_{i,j}^{t,0}, T_{i,j}^{t,1}})$
 
@@ -58,6 +78,8 @@ For all routes i,j and fixed t (define this time as the earliest departure time)
 
     $\sum_{i} \sum_{j}   B_{i,j,p}^{t} \leq 1$   $\forall \, \, t, p$
    
+
+   treat time t as intervals discretized by the min 
 
 2. Budget Constraints
    
