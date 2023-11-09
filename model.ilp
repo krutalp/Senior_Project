@@ -1,0 +1,76 @@
+\ Model Flight_Optimization_copy
+\ LP format - for model browsing. Use MPS format to capture full model detail.
+Maximize
+ 
+Subject To
+ StartingBoundaryPassenger_h_8: Z[0,h_8,LAX] = 1
+ EndingBoundaryPassenger_h_8: Z[23,h_8,ORD] = 1
+ PassengerConservation_h_8_0: X[('JFK',_'LAX',_0,_374),h_8]
+   + X[('JFK',_'ORD',_0,_164),h_8] + X[('JFK',_'MIA',_0,_189),h_8]
+   + X[('LAX',_'JFK',_0,_311),h_8] + X[('BWI',_'MIA',_0,_156),h_8]
+   + X[('MIA',_'ORD',_0,_198),h_8] + X[('ORD',_'LAX',_0,_266),h_8]
+   + X[('MIA',_'BWI',_0,_148),h_8] + X[('SEA',_'BWI',_0,_303),h_8]
+   + X[('SEA',_'MIA',_0,_339),h_8] + X[('MIA',_'JFK',_0,_173),h_8]
+   + X[('LAX',_'SEA',_0,_169),h_8] + Z[0,h_8,BWI] + Z[0,h_8,LAX]
+   + Z[0,h_8,ORD] + Z[0,h_8,SEA] + Z[0,h_8,JFK] + Z[0,h_8,MIA] = 1
+ PassengerDestinationContinuity_h_8_1_ORD: Z[0,h_8,ORD] - Z[1,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_2_ORD: Z[1,h_8,ORD] - Z[2,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_3_ORD: Z[2,h_8,ORD] - Z[3,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_4_ORD: Z[3,h_8,ORD] - Z[4,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_5_ORD: Z[4,h_8,ORD] - Z[5,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_6_ORD: Z[5,h_8,ORD] - Z[6,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_7_ORD: Z[6,h_8,ORD] - Z[7,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_8_ORD: Z[7,h_8,ORD] - Z[8,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_9_ORD: Z[8,h_8,ORD] - Z[9,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_10_ORD: Z[9,h_8,ORD] - Z[10,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_11_ORD: Z[10,h_8,ORD] - Z[11,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_12_ORD: Z[11,h_8,ORD] - Z[12,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_13_ORD: Z[12,h_8,ORD] - Z[13,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_14_ORD: Z[13,h_8,ORD] - Z[14,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_15_ORD: Z[14,h_8,ORD] - Z[15,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_16_ORD: Z[15,h_8,ORD] - Z[16,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_17_ORD: Z[16,h_8,ORD] - Z[17,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_18_ORD: Z[17,h_8,ORD] - Z[18,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_19_ORD: Z[18,h_8,ORD] - Z[19,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_20_ORD: Z[19,h_8,ORD] - Z[20,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_21_ORD: Z[20,h_8,ORD] - Z[21,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_22_ORD: Z[21,h_8,ORD] - Z[22,h_8,ORD]
+   >= 0
+ PassengerDestinationContinuity_h_8_23_ORD: Z[22,h_8,ORD] - Z[23,h_8,ORD]
+   >= 0
+Bounds
+Binaries
+ X[('JFK',_'LAX',_0,_374),h_8] X[('JFK',_'ORD',_0,_164),h_8]
+ X[('JFK',_'MIA',_0,_189),h_8] X[('LAX',_'JFK',_0,_311),h_8]
+ X[('BWI',_'MIA',_0,_156),h_8] X[('MIA',_'ORD',_0,_198),h_8]
+ X[('ORD',_'LAX',_0,_266),h_8] X[('MIA',_'BWI',_0,_148),h_8]
+ X[('SEA',_'BWI',_0,_303),h_8] X[('SEA',_'MIA',_0,_339),h_8]
+ X[('MIA',_'JFK',_0,_173),h_8] X[('LAX',_'SEA',_0,_169),h_8] Z[0,h_8,BWI]
+ Z[0,h_8,LAX] Z[0,h_8,ORD] Z[0,h_8,SEA] Z[0,h_8,JFK] Z[0,h_8,MIA]
+ Z[1,h_8,ORD] Z[2,h_8,ORD] Z[3,h_8,ORD] Z[4,h_8,ORD] Z[5,h_8,ORD]
+ Z[6,h_8,ORD] Z[7,h_8,ORD] Z[8,h_8,ORD] Z[9,h_8,ORD] Z[10,h_8,ORD]
+ Z[11,h_8,ORD] Z[12,h_8,ORD] Z[13,h_8,ORD] Z[14,h_8,ORD] Z[15,h_8,ORD]
+ Z[16,h_8,ORD] Z[17,h_8,ORD] Z[18,h_8,ORD] Z[19,h_8,ORD] Z[20,h_8,ORD]
+ Z[21,h_8,ORD] Z[22,h_8,ORD] Z[23,h_8,ORD]
+End
