@@ -21,9 +21,7 @@ The model accepts the following parameters:
     -> Set of Airports
     -> List of possible routes
     -> Set of Planes with starting airport
-    -> capacity_p
-    -> capacity_a
-
+    -> List of passengers with starting and final destination airports
 '''
 
 # import packages
@@ -43,7 +41,6 @@ import math
 from gurobipy import GRB
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 
 
 def plane_capacity(planes, mean, std, min_h, max_h):
@@ -218,7 +215,6 @@ class Flight:
         return f"Flight from {self.origin} to {self.destination} departing at t = {self.departure_time}, and arriving at t = {self.get_arrival_time()}"
     
 
-
 def run_PPIO_model(routes, T, passengers, set_of_airports, planes_p):
 
     permutations_of_routes = list(itertools.permutations(set_of_airports, 2))
@@ -275,9 +271,123 @@ def run_PPIO_model(routes, T, passengers, set_of_airports, planes_p):
 
     m.update()
 
+        # Add the objective function to the model
+
+    # Define the objective expression
+    objective_expr = gp.quicksum(Z_vars[(t, h, passengers[h].get_origin())] + 
+                                Z_vars[(t, h, passengers[h].get_destination())] 
+                                for t in T for h in passengers.keys())
+
+    # Set the objective function to maximize the above expression
+    m.setObjective(objective_expr, GRB.MAXIMIZE)
+    m.update()
+    print('Model Updated with Core Objective Function')
 
 
+    # Add General boundary conditions to the gurobi model m
+    # first add boundary for location of each plane p
 
+    # Define the starting boundary conditions at t=0 for passengers
+    for h in passengers.keys():
+        m.addConstr(Z_vars[(0, h, passengers[h].get_origin() )] == 1, name=f'StartingBoundaryPassenger_{h}')
 
+    # Define the starting boundary conditions at t=0 for planes (random assignment)
+    for p in planes_p.keys():
+        m.addConstr(W_vars[(0, p, planes_p[p] )] == 1, name=f'StartingBoundaryPlane_{p}')
 
-    return None
+    # Define the ending boundary conditions at t=|T|-1 for passengers
+    for h in passengers.keys():
+        m.addConstr(Z_vars[(len(T) - 1, h, passengers[h].get_destination() )] == 1, name=f'EndingBoundaryPassenger_{h}')
+
+    # Define the ending boundary conditions at t=|T|-1 for planes
+    for p in planes_p:
+        m.addConstr(W_vars[(len(T) - 1, p,  planes_p[p] )] == 1, name=f'EndingBoundaryPlane_{p}')
+
+    # Define Airport Capacity constraint (Constraint 9)
+    for t in T:
+        for a in set_of_airports:
+            m.addConstr(gp.quicksum(W_vars[t, p, a] for p in planes_p) <= capacity_a[a],
+                        name=f'AirportCapacity_{t}_{a}')
+            
+    # Define Plane Capacity constraint (Constraint 8)
+    for f in flights:
+        m.addConstr(gp.quicksum(X_vars[flights[f], h] for h in passengers.keys()) <=
+                    gp.quicksum(capacity_p[p] * Y_vars[p, flights[f]] for p in planes_p),
+                    name=f'PlaneCapacity_{f}')
+        
+
+    def conflicting_flights(f1,f2):
+        # return true if f1 and f2 form a conflicting flight 
+        start_f1 = flights[f1][2]
+        end_f1 = flights[f1][3]
+        start_f2 = flights[f2][2]
+        end_f2 = flights[f2][3]
+        return start_f1 <= start_f2 <= end_f1 or start_f2 <= start_f1 <= end_f2
+        
+    # Define Conflicting Flights for planes (Constraint 8)
+    for p in planes_p:
+        for f1 in flights:
+            for f2 in flights:
+                if f1 != f2 and conflicting_flights(f1, f2):
+                    m.addConstr(Y_vars[p, flights[f1]] + Y_vars[p, flights[f2]] <= 1, name=f'PlaneConflict_{p}_{f1}_{f2}')
+
+    # Define Conflicting Flights for passengers (Constraint 9)
+    for h in passengers.keys():
+        for f1 in flights:
+            for f2 in flights:
+                if f1 != f2 and conflicting_flights(f1, f2):
+                    m.addConstr(X_vars[flights[f1], h] + X_vars[flights[f2], h] <= 1, name=f'PassengerConflict_{h}_{f1}_{f2}')
+
+    # Define Conservation Laws for passengers (Constraint 10)
+    for h in passengers.keys():
+        for t in T:
+            m.addConstr(gp.quicksum(Z_vars[(t, h, a)] for a in set_of_airports) +
+                        gp.quicksum(X_vars[flights[f], h] for f in flights if flights[f][2] <= t <=  flights[f][3]  ) == 1,
+                        name=f'PassengerConservation_{h}_{t}')
+
+    # Define Conservation Laws for planes (Constraint 11)
+    for p in planes_p:
+        for t in T:
+            m.addConstr(gp.quicksum(W_vars[(t, p, a)] for a in set_of_airports) +
+                        gp.quicksum(Y_vars[p, flights[f]] for f in flights if flights[f][2] <= t <= flights[f][3]) == 1,
+                        name=f'PlaneConservation_{p}_{t}')
+
+    # Define Continuity of Origin Airport for planes (Constraint 12)
+    for p in planes_p:
+        for f in flights:
+            if flights[f][2] > 0:  # Exclude t=0
+                m.addConstr(W_vars[flights[f][2] - 1, p, flights[f][0]] >= Y_vars[p, flights[f]], name=f'PlaneOriginContinuity_{p}_{f}')
+    # Define Continuity of Origin Airport for passengers (Constraint 13)
+    for h in passengers.keys():
+        for f in flights:
+            if flights[f][2] > 0:  # Exclude t=0
+                m.addConstr(Z_vars[flights[f][2] - 1, h, flights[f][0]] >= X_vars[flights[f], h], name=f'PassengerOriginContinuity_{h}_{f}')
+
+    # Define Continuity of Destination Airport for planes (Constraint 14)
+    for p in planes_p:
+        for t in T:
+            for a in set_of_airports:
+                if t > 0:  # Exclude t=0
+                    m.addConstr(W_vars[t - 1, p, a] +
+                                gp.quicksum(Y_vars[p, flights[f]] 
+                                            for f in flights 
+                                                if flights[f][1] == a and flights[f][3] == t - 1) >= W_vars[t, p, a],
+                                name=f'PlaneDestinationContinuity_{p}_{t}_{a}')
+
+    # Define Continuity of Destination Airport for passengers (Constraint 15)
+    for h in passengers.keys():
+        for t in T:
+            for a in set_of_airports:
+                if t > 0:  # Exclude t=0
+                    m.addConstr(Z_vars[t - 1, h, a] +
+                                gp.quicksum(X_vars[flights[f], h] 
+                                            for f in flights 
+                                                if  flights[f][1] == a and flights[f][3] == t - 1) >= Z_vars[t, h, a],
+                                name=f'PassengerDestinationContinuity_{h}_{t}_{a}')
+                    
+    m.update()
+    print('Model updated with all constraints')
+    # run the model
+    m.optimize()               
+
+    return m, X_vars, W_vars, Z_vars, Y_vars
