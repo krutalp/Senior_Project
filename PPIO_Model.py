@@ -215,7 +215,8 @@ class Flight:
         return f"Flight from {self.origin} to {self.destination} departing at t = {self.departure_time}, and arriving at t = {self.get_arrival_time()}"
     
 
-def run_PPIO_model(routes, T, passengers, set_of_airports, planes_p):
+def run_PPIO_model(routes, T, passengers, set_of_airports, planes_p, second_objective=True):
+    # second objective: boolean True for the second objective function , otherwiese false and the first objective function is implemented
 
     permutations_of_routes = list(itertools.permutations(set_of_airports, 2))
 
@@ -271,16 +272,37 @@ def run_PPIO_model(routes, T, passengers, set_of_airports, planes_p):
 
     m.update()
 
-        # Add the objective function to the model
+    
 
-    # Define the objective expression
-    objective_expr = gp.quicksum(Z_vars[(t, h, passengers[h].get_origin())] + 
+    if second_objective == False:
+
+        # Create a variable D_vars for the total duration of passengers
+        D_vars = m.addVars(
+            [h for h in passengers.keys()],
+            vtype=GRB.CONTINUOUS,
+            name="D"
+        )
+        # Define the objective expression
+        objective_expr = gp.quicksum(D_vars[h] for h in passengers.keys())
+        # Set the objective function
+        m.setObjective(objective_expr, GRB.MINIMIZE)
+        # Define the constraints for D_vars
+        for h in passengers.keys():
+            m.addConstr(D_vars[h] == len(T) - gp.quicksum(Z_vars[(t, h, passengers[h].get_origin())] +
+                                                            Z_vars[(t, h, passengers[h].get_destination())]
+                                                            for t in T))
+        m.update()
+
+    else:
+        # Define the objective expression
+        objective_expr = gp.quicksum(Z_vars[(t, h, passengers[h].get_origin())] + 
                                 Z_vars[(t, h, passengers[h].get_destination())] 
                                 for t in T for h in passengers.keys())
-
-    # Set the objective function to maximize the above expression
-    m.setObjective(objective_expr, GRB.MAXIMIZE)
-    m.update()
+    
+        # Set the objective function to maximize the above expression
+        m.setObjective(objective_expr, GRB.MAXIMIZE)
+        m.update()
+    
     print('Model Updated with Core Objective Function')
 
 
